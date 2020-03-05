@@ -11,12 +11,12 @@ public class LocationLoader {
 
         JSONObject npcObject = (JSONObject) locationObject.get("npc");
 
-        String npc_name = (String) npcObject.get("name");
-        String npc_about = (String) npcObject.get("about");
-        String npc_item = (String) npcObject.get("item");
-        String npc_riddle = (String) npcObject.get("riddle");
-        String npc_answer = (String) npcObject.get("answer");
-        String npc_returnDialog = (String) npcObject.get("returnDialog");
+        String npcName = (String) npcObject.get("name");
+        String npcAbout = (String) npcObject.get("about");
+        String npcItem = (String) npcObject.get("item");
+        String npcRiddle = (String) npcObject.get("riddle");
+        String npcAnswer = (String) npcObject.get("answer");
+        String npcReturnDialog = (String) npcObject.get("returnDialog");
 
         String items = (String) locationObject.get("items");
         String[] itemTokens = items.split(", ");
@@ -24,7 +24,7 @@ public class LocationLoader {
         String neigh = (String) locationObject.get("neighbours");
         String[] neighTokens = neigh.split(", ");
 
-        return new Location(name, desc, npc_name, npc_about, npc_item, npc_riddle, npc_answer, npc_returnDialog, itemTokens, neighTokens);
+        return new Location(name, desc, npcName, npcAbout, npcItem, npcRiddle, npcAnswer, npcReturnDialog, itemTokens, neighTokens);
     }
 
     public Location getHomeLocation(JSONArray locationList) {
