@@ -183,7 +183,7 @@ public class UserInterface {
         }
     }
 
-    // @initialPromptPosition: the position of the cursor before any input is read
+    // @initialPromptPosition the position of the cursor before any input is read
     private String readUserInput(TerminalPosition initialPromptPosition) throws IOException {
         String userInput = "";
         int posX = initialPromptPosition.getColumn();
@@ -218,9 +218,93 @@ public class UserInterface {
                     screen.setCursorPosition(new TerminalPosition(posX, posY));
                     screen.refresh();
                     break;
+                case Tab:
+                    userInput = autocompleteUserInput(initialPromptPosition, userInput);
+                    posX = posX + userInput.length() - 1;
+                    break;
             }
         }
 
+        return userInput;
+    }
+
+    // autocompletes user input based upon the first character of the input
+    // @promptPosition
+    private String autocompleteUserInput(TerminalPosition promptPosition, String userInput) throws IOException {
+        String clearLine = "                                                                                                  ";
+        Character command = Character.toUpperCase(userInput.charAt(0));
+        int posX = promptPosition.getColumn();
+        int posY = promptPosition.getRow();
+
+        if (userInput.contains(" ")) {
+            return userInput;
+        }
+
+        switch (command) {
+            case 'B':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "back");
+                userInput = "back";
+                break;
+            case 'M':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "move");
+                userInput = "move";
+                break;
+            case 'G':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "go");
+                userInput = "go";
+                break;
+            case 'L':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "look");
+                userInput = "look";
+                break;
+            case 'T':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "talk");
+                userInput = "talk";
+                break;
+            case 'S':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "say");
+                userInput = "say";
+                break;
+            case 'A':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "answer");
+                userInput = "answer";
+                break;
+            case 'P':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "pause");
+                userInput = "pause";
+                break;
+            case 'Q':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "quit");
+                userInput = "quit";
+                break;
+            case 'H':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "help");
+                userInput = "help";
+                break;
+            case 'I':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "inv");
+                userInput = "inv";
+                break;
+            case 'F':
+                tg.putString(promptPosition, clearLine);
+                tg.putString(promptPosition, "free market capitalism");
+                userInput = "free market capitalism";
+                break;
+        }
+
+        screen.setCursorPosition(new TerminalPosition(posX + userInput.length(), posY));
+        screen.refresh();
         return userInput;
     }
 
