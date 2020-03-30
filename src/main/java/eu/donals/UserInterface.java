@@ -229,7 +229,8 @@ public class UserInterface {
     }
 
     // autocompletes user input based upon the first character of the input
-    // @promptPosition
+    // @promptPosition the current position of the prompt (cursor) on the screen
+    // @userInput the current input typed in by the user
     private String autocompleteUserInput(TerminalPosition promptPosition, String userInput) throws IOException {
         String clearLine = "                                                                                                  ";
         Character command = Character.toUpperCase(userInput.charAt(0));
