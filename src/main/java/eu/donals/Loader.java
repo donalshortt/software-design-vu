@@ -3,6 +3,8 @@ package eu.donals;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Loader {
@@ -22,21 +24,25 @@ public class Loader {
         String npc_answer = (String) npcObject.get("answer");
         String npc_returnDialog = (String) npcObject.get("returnDialog");
 
-        String items = (String) locationObject.get("items");
-        String[] itemTokens = items.split(", ");
-
         String neigh = (String) locationObject.get("neighbours");
-        String[] neighTokens = neigh.split(", ");
+        List<String> neighTokens = Arrays.asList(neigh.split(", "));
 
-        return new Location(name, desc, npc_name, npc_about, npc_item, npc_riddle, npc_answer, npc_returnDialog, itemTokens, neighTokens);
+        return new Location(name, desc, npc_name, npc_about, npc_item, npc_riddle, npc_answer, npc_returnDialog, neighTokens);
     }
 
-    public Location getHomeLocation(JSONArray locationList) {
+    public static Location getHomeLocation(JSONArray locationList) {
+//        JSONArray locationList = GameState.getInstance().getLocationList();
         return Loader.parseLocationObject((JSONObject) locationList.get(0));
     }
 
-    public Location parseLocationByName(String argument, JSONArray locationList) {
-        for (Object obj : locationList) {
+    public static Location getFinalLocation() {
+        JSONArray locationList = GameState.getInstance().getLocationList();
+        return Loader.parseLocationObject((JSONObject) locationList.get(locationList.size()-1));
+    }
+
+    public Location parseLocationByName(String argument) {
+        JSONArray locationList = GameState.getInstance().getLocationList();
+        for (Object obj: locationList) {
             Location location = Loader.parseLocationObject((JSONObject) obj);
 
             if (location.getName().equals(argument)) {
@@ -44,6 +50,19 @@ public class Loader {
             }
         }
         return null;
+    }
+
+    public static List<String> allItemsOnMap() {
+        JSONArray locationList = GameState.getInstance().getLocationList();
+        List<String> result = new ArrayList<String>();
+        for (Object obj: locationList) {
+            Location location = Loader.parseLocationObject((JSONObject) obj);
+            String theItem = location.getNPC().getItem();
+            if (theItem != null && theItem.length() > 0) {
+                result.add(theItem);
+            }
+        }
+        return result;
     }
 
     public List<String> parseImage() {

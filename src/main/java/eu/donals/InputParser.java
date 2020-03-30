@@ -1,10 +1,14 @@
 package eu.donals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InputParser {
     private Command command;
     private String argument;
 
     public enum Command {
+        BACK,
         GO,
         MOVE,
         LOOK,
@@ -13,6 +17,7 @@ public class InputParser {
         ANSWER,
         HELP,
         INV,
+        PAUSE,
         QUIT
     }
 
@@ -20,7 +25,22 @@ public class InputParser {
     public String getArgument() { return argument; }
 
     private static Command parseCommand(String userCommand) {
-        return Command.valueOf(userCommand.toUpperCase());
+        userCommand = userCommand.toUpperCase();
+        if(!isCommand(userCommand)) {
+            return Command.QUIT;
+        } else {
+            return Command.valueOf(userCommand);
+        }
+    }
+
+    public static boolean isCommand(String userCommand) {
+        Command[] commands = Command.values();
+        //putting the command enums into an array
+        List<String> stringCommands = new ArrayList<String>();
+        for (Command cmd: commands) {
+            stringCommands.add(cmd.toString());
+        }
+        return stringCommands.contains(userCommand);
     }
 
     private static String parseArgument(String userArgument) {

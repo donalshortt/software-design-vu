@@ -122,14 +122,33 @@ public class UserInterface {
     // strings displayed at once
     public void displayText(List<String> textBlock) throws IOException {
         int counter = 22;
+        int secondCounter = 0;
         String clearLine = "                                                                                                  ";
+        List<String> sanitisedTextBlock = new ArrayList<String>();
+
+        for (String string : textBlock) {
+            if (string.length() > 98) {
+                List<String> splitString = stringSplit(string);
+                sanitisedTextBlock.addAll(secondCounter, splitString);
+            } else {
+                sanitisedTextBlock.add(string);
+                secondCounter++;
+            }
+        }
 
         try {
-            for (String string : textBlock) {
-                if (string.length() > 98){ throw new DisplayError("text input string is too long: " + string); }
+            for (int i = 0; i < 8; i++) {
+                tg.putString(31, counter, clearLine);
+
+                counter++;
+            }
+
+            counter = counter - 8;
+
+            for (String string : sanitisedTextBlock) {
+                if (string.length() > 98) { throw new DisplayError("text input string is too long: " + string); }
                 if (counter > 30){ throw new DisplayError("too many text input strings to display: " + textBlock); }
 
-                tg.putString(31, counter, clearLine);
                 tg.putString(31, counter, string);
 
                 counter++;
@@ -146,7 +165,7 @@ public class UserInterface {
     // @string  must be no more than 98 chars long, if it is longer, stringSplit() will attempt to make it fit
     public void displayText(String string) throws IOException {
         String clearLine = "                                                                                                  ";
-        List<String> splitString = new ArrayList<String>();
+        List<String> splitString;
 
         try {
             if (string.length() > 98){
