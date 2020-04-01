@@ -7,7 +7,8 @@ eu/donals/Location.class
 eu/donals/InputParser.class
 eu/donals/GameState$1.class
 eu/donals/UserInterface$1.class
+eu/donals/PDFGenerator.class
 eu/donals/GameState.class
-eu/donals/Location$NPC.class
 eu/donals/Player.class
+eu/donals/Location$NPC.class
 eu/donals/UserInterface.class

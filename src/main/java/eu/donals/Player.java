@@ -7,9 +7,17 @@ import java.util.List;
 public class Player {
     private String name;
     private List<String> inventory;
-//    private UserInterface ui;
 
     private boolean hasItem(String item) { return inventory.contains(item); }
+
+    private boolean containsIgnoreCase(List<String> list, String soughtFor) {
+        for (String current : list) {
+            if (current.equalsIgnoreCase(soughtFor)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public String getName() { return name; }
 
@@ -17,14 +25,12 @@ public class Player {
         GameState state = GameState.getInstance();
         List<String> currNeighbours = state.getLocation().getNeighbours();
 
-        Loader locationLoader = new Loader();
-        Location location = locationLoader.parseLocationByName(argument);
+        Location location = Loader.parseLocationByName(argument);
 
         if(location != null) {
-            if (currNeighbours.contains(argument)) {
+            if (containsIgnoreCase(currNeighbours, argument))
+            {
                 state.setLocation(location);
-//                List<String> outputText = state.refreshPage();
-//                ui.displayText(outputText);
                 state.addPrint("So, what's next?");
             } else {
                 state.addPrint("No such place in this neighbourhood");
@@ -36,7 +42,10 @@ public class Player {
 
     public void look(String argument) throws IOException {
         GameState state = GameState.getInstance();
-        if(argument.equals(state.getLocation().getNPC())) {
+        UserInterface ui = UserInterface.getInstance();
+
+        if(argument.equalsIgnoreCase(state.getLocation().getNPC().getName())) {
+            ui.displayImage(state.getLocation().getNPC().getImage());
             state.addPrint(state.getLocation().getNPC().getAbout());
         } else {
             state.addPrint("NPC is not here");
@@ -45,8 +54,10 @@ public class Player {
 
     public void talk(String argument) throws IOException {
         GameState state = GameState.getInstance();
-        if(argument.equals(state.getLocation().getNPC().getName())) {
+        UserInterface ui = UserInterface.getInstance();
 
+        if(argument.equalsIgnoreCase(state.getLocation().getNPC().getName())) {
+            ui.displayImage(state.getLocation().getNPC().getImage());
             if(hasItem(state.getLocation().getNPC().getItem())) {
                 state.addPrint(state.getLocation().getNPC().getReturnDialog());
             } else {
@@ -59,10 +70,11 @@ public class Player {
 
     public void say(String argument) throws IOException {
         GameState state = GameState.getInstance();
+        UserInterface ui = UserInterface.getInstance();
         String correctAnswer = state.getLocation().getNPC().getAnswer();
         String item = state.getLocation().getNPC().getItem();
 
-        if (correctAnswer.equals(argument)) {
+        if (correctAnswer.equalsIgnoreCase(argument)) {
             if(hasItem(item)) {
                 state.addPrint("You already have " + item + " in your inventory");
             } else {
@@ -82,6 +94,5 @@ public class Player {
     public Player(String name) {
         this.name = name;
         inventory = new ArrayList<String>(){};
-//        ui = UserInterface.getInstance();
     }
 }

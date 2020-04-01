@@ -11,6 +11,7 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,9 +44,11 @@ public class UserInterface {
     public static UserInterface getInstance() { return instance; }
 
     // displays the game initialisation, returns the character's name
-    public String initGame() throws IOException, InterruptedException {
-        String presentationText  = "Team 15 studios present...";
-        String gameTitle = "Super Ultimate Pizza Maker 69";
+    public String initGame() throws IOException, InterruptedException, ParseException {
+        //String presentationText  = "Team 15 studios present...";
+
+        String presentationText  = (String) Loader.parseMetaData().get("title");
+        String gameTitle = (String) Loader.parseMetaData().get("team");
         String playernamePrompt = "Please enter your character's name: ";
         String userInput = "";
         int cursorX = (centreText(160, playernamePrompt) + playernamePrompt.length() + 1);
@@ -84,7 +87,7 @@ public class UserInterface {
         tg.drawRectangle(new TerminalPosition(45, 3), new TerminalSize(70, 15), Symbols.BLOCK_SOLID);
 
         // display box
-        tg.drawRectangle(new TerminalPosition(30, 21), new TerminalSize(100, 10), Symbols.BLOCK_MIDDLE);
+        tg.drawRectangle(new TerminalPosition(30, 21), new TerminalSize(100, 10), Symbols.BLOCK_MIDDLE); // 10
 
         // input box
         tg.drawRectangle(new TerminalPosition(30, 34), new TerminalSize(100, 3), Symbols.BLOCK_MIDDLE);
@@ -161,34 +164,6 @@ public class UserInterface {
         }
     }
 
-    // displays text within the text box
-    // @string  must be no more than 98 chars long, if it is longer, stringSplit() will attempt to make it fit
-    public void displayText(String string) throws IOException {
-        String clearLine = "                                                                                                  ";
-        List<String> splitString;
-
-        try {
-            if (string.length() > 98){
-                splitString = stringSplit(string);
-                if (splitString != null){
-                    displayText(splitString);
-                    return;
-                } else { throw new DisplayError("text input string is too long: " + string); }
-            }
-
-            // clears the text box
-            for (int i = 22; i < 30; i++) {
-                tg.putString(31, i, clearLine);
-            }
-
-            tg.putString(31, 22, string);
-            screen.refresh();
-        } catch (DisplayError e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
     // wraps readUserInput() and supplies the correct information so that input can be taken from the input box
     public String takeInput() throws IOException {
         String clearLine = "                                                                                                  ";
@@ -252,9 +227,13 @@ public class UserInterface {
     // @userInput the current input typed in by the user
     private String autocompleteUserInput(TerminalPosition promptPosition, String userInput) throws IOException {
         String clearLine = "                                                                                                  ";
-        Character command = Character.toUpperCase(userInput.charAt(0));
+        char command = 0;
         int posX = promptPosition.getColumn();
         int posY = promptPosition.getRow();
+
+        if (userInput.length() != 0) {
+            command = Character.toUpperCase(userInput.charAt(0));
+        }
 
         if (userInput.contains(" ")) {
             return userInput;

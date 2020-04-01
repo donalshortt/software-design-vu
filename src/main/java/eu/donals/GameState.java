@@ -32,7 +32,7 @@ public class GameState {
     }
 
     private GameState() throws IOException, ParseException {
-        FileReader locationsReader = new FileReader("src/main/json-files/test-map.json");
+        FileReader locationsReader = new FileReader("src/main/resources/game-data.json");
         JSONParser jsonParser = new JSONParser();
 
         locationList = (JSONArray) jsonParser.parse(locationsReader); //imports JSONArray of locations from json file
@@ -63,14 +63,16 @@ public class GameState {
             case SAY:
             case ANSWER:
                 player.say(parsedInput.getArgument());
+                isGameOver();
                 break;
             case PAUSE:
                 this.isFinished = true;
                 // go to menu
                 break;
             case QUIT:
+            case EXIT:
                 this.isFinished = true;
-//                System.exit(0);
+                System.exit(0);
                 break;
             case HELP:
                 printHelpMessage();
@@ -78,40 +80,50 @@ public class GameState {
             case INV:
                 player.printInv();
                 break;
+            case ERROR:
+                addPrint("Unknown command");
+                break;
             default:
-                System.exit(0);
+                System.err.println("GameState reached unknown command");
+                System.exit(1);
         }
-        isGameOver();
     }
 
     public void isGameOver() throws IOException {
-        List<String> one = new ArrayList<String>(Loader.allItemsOnMap());
-        List<String> two = new ArrayList<String>(player.getInventory());
-        Collections.sort(one);
-        Collections.sort(two);
-        if(one.equals(two)) {
-            if(getLocation() == Loader.getFinalLocation()){
+        List<String> essentialItems = new ArrayList<String>(Loader.allItemsOnMap());
+        List<String> playerItems = new ArrayList<String>(player.getInventory());
+
+        Collections.sort(essentialItems);
+        Collections.sort(playerItems);
+
+        if(essentialItems.equals(playerItems)) {
+            if(getLocation().getName().equals(Loader.getFinalLocation().getName())) {
+
+                addPrint("Game Over! Thank you for playing " + player.getName()
+                        + "! Here is proof of completion...");
+
+                isFinished = true;
+
                 if (Desktop.isDesktopSupported()) {
                     try {
-                        addPrint("You finished the game " + player.getName() + "! Get your certificate.");
-                        isFinished = true;
 
-                        File myFile = new File("/path/to/file.pdf");
+                        PDFGenerator.generatePDF();
+
+                        File myFile = new File(PDFGenerator.getFileLocation());
                         Desktop.getDesktop().open(myFile);
                     } catch (IOException ex) {
-                        // no application registered for PDFs
+                        addPrint("Error creating certificate");
                     }
                 }
+
             } else {
-                state.addPrint("You have all the items, now go to " + Loader.getFinalLocation().getName() + " to finish the game.");
+                state.addPrint("You have all the items, get to the " + Loader.getFinalLocation().getName());
             }
         }
     }
 
-    public List<String> refreshPage() { //maybe static
+    public List<String> refreshPage() {
         List<String> textDisplay = new ArrayList<String>();
-//        textDisplay.add("Welcome " + getPlayer().getPlayerName());
-//        textDisplay.add("Type 'help' for a list of commands, 'back' to bring menu back");
         textDisplay.add(getPlayer().getName() + ", your current location: " + getLocation().getName());
         textDisplay.add(getLocation().getDescription());
         textDisplay.add("NPCs: " + location.getNPC().getName());
@@ -122,7 +134,7 @@ public class GameState {
     public void addPrint(String added) throws IOException {
         List<String> outputText = refreshPage();
         UserInterface ui = UserInterface.getInstance();
-        outputText.add("***");
+        //outputText.add("***"); // TODO: fix text display bug, talk with baby
         outputText.add(added);
         ui.displayText(outputText);
     }
@@ -134,8 +146,10 @@ public class GameState {
         outputText.add("move/go [location] - Move to that location");
         outputText.add("look [npc] - Look at npc at current location");
         outputText.add("talk [npc] - Talk to npc at location");
-        outputText.add("say/answer [answer] - Answer the riddle to get the item" );
-        outputText.add("quit - Quit game");
+        outputText.add("say/answer [answer] - Answer the riddle to get the item");
+        outputText.add("inv - Display inventory");
+        outputText.add("quit/exit - Quit game");
+        outputText.add("press tab to autocomplete commands");
 
         ui.displayText(outputText);
     }

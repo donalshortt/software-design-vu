@@ -9,6 +9,7 @@ public class InputParser {
 
     public enum Command {
         BACK,
+        ERROR,
         GO,
         MOVE,
         LOOK,
@@ -18,6 +19,7 @@ public class InputParser {
         HELP,
         INV,
         PAUSE,
+        EXIT,
         QUIT
     }
 
@@ -27,7 +29,7 @@ public class InputParser {
     private static Command parseCommand(String userCommand) {
         userCommand = userCommand.toUpperCase();
         if(!isCommand(userCommand)) {
-            return Command.QUIT;
+            return Command.ERROR;
         } else {
             return Command.valueOf(userCommand);
         }

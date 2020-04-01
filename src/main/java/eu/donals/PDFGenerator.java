@@ -2,56 +2,37 @@ package eu.donals;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
+import org.json.simple.parser.ParseException;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-
-/*
-* https://www.baeldung.com/java-pdf-creation
-* https://www.vogella.com/tutorials/JavaPDF/article.html
-*
-*
-* <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itextpdf</artifactId>
-            <version>5.5.13</version>
-   </dependency>
-* */
-
-
 public class PDFGenerator {
 
-    private static String FILE = "/home/daniel/Projects/vu_text_adventure/src/main/java/eu/donals/StinkyMonkeyCertificate.pdf";
-
-    public static void generatePDF() {
-        try {
-            Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream(FILE));
-            document.open();
-
-            addMetaData(document);
-            addContent(document);
-
-            document.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    private static String fileLocation = "./certificate.pdf";
 
     private static void addMetaData(Document document) {
-        document.addTitle("StinkyMonkeyCertificate");
-        document.addSubject("Software Design VU - 2020");
-        document.addCreator("Donal, Daniel, Nariman and Sofia");
+        document.addTitle("Certificate");
     }
 
-    private static void addContent(Document document) throws DocumentException, IOException {
+    private static void addContent(Document document) throws DocumentException, IOException, ParseException {
 
         GameState gameState = GameState.getInstance();
 
-        document.add(new Paragraph(
-                "Congratulations!\n" +
-                "You have completed the Stinky Monkey game! Here are some stats:"));
+        Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 30.0f, Font.BOLD, BaseColor.BLACK);
+        Font textFont = new Font(Font.FontFamily.TIMES_ROMAN, 10.0f, Font.NORMAL, BaseColor.BLACK);
+
+        Chunk a = new Chunk("Congratulations!\n", titleFont);
+
+        Chunk b = new Chunk("You have completed the " + (String) Loader.parseMetaData().get("title")
+                + "\n\nMade by: " + (String) Loader.parseMetaData().get("team")
+                + "\nGame statistics:\n", textFont);
+
+        Paragraph title = new Paragraph(a);
+        Paragraph text = new Paragraph(b);
+
+        document.add(title);
+        document.add(text);
 
         String playerName = gameState.getPlayer().getName();
         String playerInv = gameState.getPlayer().getInventory().toString();
@@ -61,8 +42,29 @@ public class PDFGenerator {
         list.add("Final inventory: " + playerInv);
         document.add(list);
 
-        String imageFile = "src/main/java/eu/donals/certificate-stamp.png";
+        String imageFile = "src/main/resources/stamp.jpg";
         Image image = Image.getInstance(imageFile);
+        image.setAbsolutePosition(450, 200);
         document.add(image);
     }
+
+    public static void generatePDF() {
+        try {
+            Document document = new Document();
+            document.setPageSize(PageSize.A4.rotate());
+
+            PdfWriter.getInstance(document, new FileOutputStream(fileLocation));
+            document.open();
+
+            addMetaData(document);
+            addContent(document);
+
+            document.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getFileLocation() { return fileLocation; }
 }
